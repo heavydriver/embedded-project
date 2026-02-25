@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: UTF-8 -*-
-from raspbot import Raspbot
+from .raspbot import Raspbot
 import time, math
 
 # 初始化机器人对象
