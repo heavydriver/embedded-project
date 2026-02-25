@@ -1,6 +1,42 @@
 from lib.movement import *
 
 
+def round_robin():
+    pass
+
+
+def startup_action():
+    pass
+
+
+def timer_check():
+    pass
+
+
+def color_counter(image):
+    pass
+
+
+def color_locator(color_counts):
+    pass
+
+
+def idle_action():
+    pass
+
+
+def green_action(p_vector):
+    pass
+
+
+def blue_action(p_vector):
+    pass
+
+
+def red_action():
+    pass
+
+
 def main():
     print("Hello from embedded-project!")
 
