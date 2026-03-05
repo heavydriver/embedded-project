@@ -13,8 +13,8 @@ Created a real-time system, using round-robing scheduling, for a robot to engage
 
 ## Raspbot Resources
 
-- Raspbot documentation - https://www.yahboom.net/study/RASPBOT-V2
-- Raspbot sample code - https://github.com/YahboomTechnology/Raspbot-V2
+- Raspbot documentation - <https://www.yahboom.net/study/RASPBOT-V2>
+- Raspbot sample code - <https://github.com/YahboomTechnology/Raspbot-V2>
 - Raspbot Wi-Fi
   - SSID - `Raspbot-group06`
   - Password - `12345678`
