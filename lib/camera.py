@@ -4,13 +4,12 @@ import numpy as np
 # camera constants
 WIDTH = 640
 HEIGHT = 480
-CAMERA_INDEX = 0
+CAMERA_INDEX = 1
 
 # creates a capture device
 cap = cv2.VideoCapture(CAMERA_INDEX)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
-
 
 if not cap.isOpened():
     print("Error: Could not open the video source")
@@ -43,10 +42,10 @@ def get_mask(hsv, max_color):
 
     Args:
         hsv (numpy array): image in HSV format
-        max_color (str): command color with the heighest pixel count
+        max_color (str): command color with the highest pixel count
 
     Returns:
-        numpy array: the hsv image after applying a certain mask (fileters the given max_color)
+        numpy array: the hsv image after applying a certain mask (filters the given max_color)
     """
 
     if max_color == "red":
@@ -60,7 +59,7 @@ def get_mask(hsv, max_color):
 
 
 def get_red_mask(hsv):
-    """Higlights areas with red color
+    """Highlights areas with red color
 
     Args:
         hsv (numpy array): image in HSV format
@@ -82,7 +81,7 @@ def get_red_mask(hsv):
 
 
 def get_green_mask(hsv):
-    """Higlights areas with green color
+    """Highlights areas with green color
 
     Args:
         hsv (numpy array): image in HSV format
@@ -91,8 +90,8 @@ def get_green_mask(hsv):
         numpy array: the hsv image after filtering green color
     """
 
-    lower_green = np.array([36, 25, 25])
-    upper_green = np.array([86, 255, 255])
+    lower_green = np.array([40, 100, 100])
+    upper_green = np.array([80, 255, 255])
 
     green_mask = cv2.inRange(hsv, lower_green, upper_green)
 
@@ -100,7 +99,7 @@ def get_green_mask(hsv):
 
 
 def get_blue_mask(hsv):
-    """Higlights areas with blue color
+    """Highlights areas with blue color
 
     Args:
         hsv (numpy array): image in HSV format
@@ -117,7 +116,7 @@ def get_blue_mask(hsv):
     return blue_mask
 
 
-# for testing - draws the average positon on the image
+# for testing - draws the average position on the image
 def draw_average_pos(img, majority_color, avg_pos):
     cv2.circle(img, avg_pos, 10, (0, 255, 255), -1)
     cv2.putText(
