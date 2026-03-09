@@ -2,20 +2,48 @@ from lib.movement import *
 from lib.camera import *
 import numpy as np
 import time
+from datetime import datetime
 
 # constants
 MIN_COLOR_THRESHOLD = 5000
+MAX_IDLE_TIME = 30  # in seconds
 
 
 def round_robin():
-    pass
+    start_time = datetime.now()
+    last_action_time = start_time
+
+    while True:
+        if timer_check(last_action_time):
+            stop_robot()
+            break
+
+        img = get_image()
+        color_counts = color_counter(img)
+        max_color, avg_pos = color_locator(img, color_counts)
+
+        if max_color != None:
+            last_action_time = datetime.now()
+
+        if max_color == "green":
+            green_action(avg_pos)
+        elif max_color == "blue":
+            blue_action(avg_pos)
+        elif max_color == "red":
+            red_action()
+        else:
+            idle_action()
+
+        print(color_counts)
+
+        time.sleep(0.05)
 
 
 def startup_action():
     pass
 
 
-def timer_check():
+def timer_check(last_action_time):
     pass
 
 
@@ -46,8 +74,8 @@ def color_locator(image, color_counts):
         color_counts (dictionary): command colors and their associated counts
 
     Returns:
-        str: command color with the heighest pixel count
-        (int, int): x and y posititon of the command color object
+        str: command color with the highest pixel count
+        (int, int): x and y position of the command color object
     """
 
     max_color = max(color_counts, key=color_counts.get)
@@ -72,7 +100,7 @@ def color_locator(image, color_counts):
 
 
 def idle_action():
-    pass
+    stop_robot()
 
 
 def green_action(p_vector):
@@ -101,6 +129,9 @@ def camera_test():
 
 def main():
     print("Hello from embedded-project!")
+
+    startup_action()
+    round_robin()
 
 
 if __name__ == "__main__":
