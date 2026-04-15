@@ -5,9 +5,11 @@ import time
 from datetime import datetime
 
 # constants
-MIN_COLOR_THRESHOLD = 5000
+MIN_COLOR_THRESHOLD = 10000
 MAX_IDLE_TIME = 30  # in seconds
 
+IMG_HEIGHT = 480
+IMG_WIDTH = 640
 
 def round_robin():
     start_time = datetime.now()
@@ -27,24 +29,32 @@ def round_robin():
 
         if max_color == "green":
             green_action(avg_pos)
+            discard_frames()
         elif max_color == "blue":
             blue_action(avg_pos)
+            discard_frames()
         elif max_color == "red":
             red_action()
+            discard_frames()
         else:
             idle_action()
 
-        print(color_counts)
-
+        # print(color_counts)
         time.sleep(0.05)
 
 
 def startup_action():
-    pass
+    rotate_right(125)
+    time.sleep(1.5)
+    stop_robot()
 
 
 def timer_check(last_action_time):
-    pass
+    current_time = datetime.now()
+    duration = current_time - last_action_time
+    if duration.total_seconds() > MAX_IDLE_TIME:
+        return True
+    return False
 
 
 def color_counter(image):
@@ -65,7 +75,6 @@ def color_counter(image):
 
     return color_counts
 
-
 def color_locator(image, color_counts):
     """Gets the 2D position of the object which has the highest command color count
 
@@ -74,8 +83,8 @@ def color_locator(image, color_counts):
         color_counts (dictionary): command colors and their associated counts
 
     Returns:
-        str: command color with the highest pixel count
-        (int, int): x and y position of the command color object
+        str: command color with the heighest pixel count
+        (int, int): x and y posititon of the command color object
     """
 
     max_color = max(color_counts, key=color_counts.get)
@@ -98,22 +107,39 @@ def color_locator(image, color_counts):
 
     return max_color, avg_pos
 
+def discard_frames():
+    for i in range(5):
+        get_image()
 
 def idle_action():
     stop_robot()
 
-
 def green_action(p_vector):
-    pass
+    x_offset = p_vector[0] - (IMG_WIDTH/2)
+    if x_offset > 0:
+        rotate_right(50)
+        time.sleep(x_offset / 2000.0)
+    else:
+        rotate_left(50)
+        time.sleep(-x_offset / 2000.0)
+    stop_robot()
 
 
 def blue_action(p_vector):
-    pass
+    x_offset = p_vector[0] - (IMG_WIDTH/2)
+    if x_offset > 0:
+        move_right(50)
+        time.sleep(x_offset / 1500.0)
+    else:
+        move_left(50)
+        time.sleep(-x_offset / 1500.0)
+    stop_robot()
 
 
 def red_action():
-    pass
-
+    rotate_right(50)
+    time.sleep(1.5)
+    stop_robot()
 
 def camera_test():
     while True:
