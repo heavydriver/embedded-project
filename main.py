@@ -10,6 +10,8 @@ MAX_IDLE_TIME = 30  # in seconds
 
 IMG_HEIGHT = 480
 IMG_WIDTH = 640
+CENTER_X = IMAGE_WIDTH // 2
+GREEN_CENTER_TOLERANCE = 40
 
 def round_robin():
     start_time = datetime.now()
@@ -115,15 +117,30 @@ def idle_action():
     stop_robot()
 
 def green_action(p_vector):
-    x_offset = p_vector[0] - (IMG_WIDTH/2)
-    if x_offset > 0:
-        rotate_right(50)
-        time.sleep(x_offset / 2000.0)
-    else:
-        rotate_left(50)
-        time.sleep(-x_offset / 2000.0)
-    stop_robot()
+    """Rotate the robot body to center the green object in the image."""
 
+    if p_vector is None:
+        stop_robot()
+        return
+
+    x = p_vector[0]
+    error = x - CENTER_X
+
+    if abs(error) <= GREEN_CENTER_TOLERANCE:
+        stop_robot()
+        return
+
+    Kp = 0.5
+    turn_speed = int(abs(error) * Kp)
+
+    MIN_SPEED = 30
+    MAX_SPEED = 120
+    turn_speed = max(MIN_SPEED, min(MAX_SPEED, turn_speed))
+
+    if error < 0:
+        rotate_left(turn_speed)
+    else:
+        rotate_right(turn_speed)
 
 def blue_action(p_vector):
     x_offset = p_vector[0] - (IMG_WIDTH/2)
