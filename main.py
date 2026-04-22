@@ -44,15 +44,15 @@ def round_robin():
 
 
 def startup_action():
-    rotate_right(125)
-    time.sleep(1.5)
+    rotate_left(80)
+    time.sleep(1.4)
     stop_robot()
 
 
 def timer_check(last_action_time):
     current_time = datetime.now()
-    duration = current_time - last_action_time
-    if duration.total_seconds() > MAX_IDLE_TIME:
+    elapsed_time = current_time - last_action_time
+    if elapsed_time.total_seconds() > MAX_IDLE_TIME:
         return True
     return False
 
@@ -138,7 +138,7 @@ def blue_action(p_vector):
 
 def red_action():
     rotate_right(50)
-    time.sleep(1.5)
+    time.sleep(0.9)
     stop_robot()
 
 def camera_test():
