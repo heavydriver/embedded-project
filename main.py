@@ -8,9 +8,9 @@ from datetime import datetime
 MIN_COLOR_THRESHOLD = 10000
 MAX_IDLE_TIME = 30  # in seconds
 
-IMG_HEIGHT = 480
-IMG_WIDTH = 640
-CENTER_X = IMAGE_WIDTH // 2
+# WIDTH and HEIGHT imported from lib.camera 
+
+CENTER_X = WIDTH // 2
 GREEN_CENTER_TOLERANCE = 40
 
 def round_robin():
@@ -143,14 +143,23 @@ def green_action(p_vector):
         rotate_right(turn_speed)
 
 def blue_action(p_vector):
-    x_offset = p_vector[0] - (IMG_WIDTH/2)
+    x_offset = p_vector[0] - (WIDTH/2)
+
+    if abs(x_offset) < 20:
+        return
+
+    speed = abs(x_offset) * 0.5
+
+    print(speed)
+
     if x_offset > 0:
-        move_right(50)
-        time.sleep(x_offset / 1500.0)
+        move_right(speed)
+        time.sleep(0.25)
     else:
-        move_left(50)
-        time.sleep(-x_offset / 1500.0)
+        move_left(speed)
+        time.sleep(0.25)
     stop_robot()
+
 
 
 def red_action():
