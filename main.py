@@ -12,7 +12,10 @@ MAX_IDLE_TIME = timedelta(seconds=20)  # in seconds
 GREEN_ACTION_TOLERANCE = 80  # in pixels
 BLUE_ACTION_TOLERANCE = 50  # in pixels
 
+
 def round_robin():
+    """Runs the RTOS round-robin loop and dispatches actions by detected color"""
+
     start_time = datetime.now()
     last_action_time = start_time
 
@@ -34,10 +37,8 @@ def round_robin():
             red_rotation_start_time = red_action(red_rotation_start_time)
         elif max_color == "green":
             green_action(avg_pos)
-            discard_frames()
         elif max_color == "blue":
             blue_action(avg_pos)
-            discard_frames()
         elif max_color == "red":
             if red_rotation_start_time is None:
                 red_rotation_start_time = datetime.now()
@@ -51,12 +52,23 @@ def round_robin():
 
 
 def startup_action():
+    """Rotates the vehicle once at startup to indicate successful initialization"""
+
     rotate_right(40)
     time.sleep(ROTATE_360_TIME)
     stop_robot()
 
 
 def timer_check(last_action_time):
+    """Checks whether the robot has been idle longer than the allowed timeout
+
+    Args:
+        last_action_time (datetime): The most recent time a command color action was active
+
+    Returns:
+        bool: True when execution should stop, otherwise False.
+    """
+
     if datetime.now() - last_action_time > MAX_IDLE_TIME:
         return True
 
@@ -80,6 +92,7 @@ def color_counter(image):
     color_counts = {"red": red_count, "green": green_count, "blue": blue_count}
 
     return color_counts
+
 
 def color_locator(image, color_counts):
     """Gets the 2D position of the object which has the highest command color count
@@ -113,14 +126,20 @@ def color_locator(image, color_counts):
 
     return max_color, avg_pos
 
-def discard_frames():
-    for i in range(5):
-        get_image()
 
 def idle_action():
+    """Stops the vehicle when no command color is detected"""
+
     stop_robot()
 
+
 def green_action(p_vector):
+    """Rotates the vehicle until the detected green object is horizontally centered
+
+    Args:
+        p_vector ((int, int) | None): The detected command color position as an (x, y) tuple.
+    """
+
     if p_vector is None:
         stop_robot()
         return
@@ -135,7 +154,14 @@ def green_action(p_vector):
     else:
         rotate_left(10)
 
+
 def blue_action(p_vector):
+    """Moves the vehicle sideways until the detected blue object is horizontally centered
+
+    Args:
+        p_vector ((int, int) | None): The detected command color position as an (x, y) tuple.
+    """
+
     if p_vector is None:
         stop_robot()
         return
@@ -152,6 +178,15 @@ def blue_action(p_vector):
 
 
 def red_action(start_time):
+    """Rotates the vehicle for approximately 180 degrees away from the detected red object
+
+    Args:
+        start_time (datetime): The time when the red rotation action began.
+
+    Returns:
+        datetime | None: The original start time while rotating, or None once rotation is complete.
+    """
+
     if datetime.now() - start_time < ROTATE_180_TIME:
         rotate_left(40)
         return start_time
@@ -161,6 +196,8 @@ def red_action(start_time):
 
 
 def camera_test():
+    """Prints detected color counts and positions for camera debugging"""
+
     while True:
         image = get_image()
         color_counts = color_counter(image)
@@ -173,6 +210,8 @@ def camera_test():
 
 
 def main():
+    """Initializes the robot behavior and starts the scheduler"""
+
     print("Hello from embedded-project!")
 
     startup_action()
