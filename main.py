@@ -12,7 +12,6 @@ MAX_IDLE_TIME = timedelta(seconds=20)  # in seconds
 GREEN_ACTION_TOLERANCE = 80  # in pixels
 BLUE_ACTION_TOLERANCE = 50  # in pixels
 
-
 def round_robin():
     start_time = datetime.now()
     last_action_time = start_time
@@ -35,8 +34,10 @@ def round_robin():
             red_rotation_start_time = red_action(red_rotation_start_time)
         elif max_color == "green":
             green_action(avg_pos)
+            discard_frames()
         elif max_color == "blue":
             blue_action(avg_pos)
+            discard_frames()
         elif max_color == "red":
             if red_rotation_start_time is None:
                 red_rotation_start_time = datetime.now()
@@ -45,8 +46,7 @@ def round_robin():
         else:
             idle_action()
 
-        print(color_counts)
-
+        # print(color_counts)
         time.sleep(0.05)
 
 
@@ -81,7 +81,6 @@ def color_counter(image):
 
     return color_counts
 
-
 def color_locator(image, color_counts):
     """Gets the 2D position of the object which has the highest command color count
 
@@ -90,8 +89,8 @@ def color_locator(image, color_counts):
         color_counts (dictionary): command colors and their associated counts
 
     Returns:
-        str: command color with the highest pixel count
-        (int, int): x and y position of the command color object
+        str: command color with the heighest pixel count
+        (int, int): x and y posititon of the command color object
     """
 
     max_color = max(color_counts, key=color_counts.get)
@@ -114,10 +113,12 @@ def color_locator(image, color_counts):
 
     return max_color, avg_pos
 
+def discard_frames():
+    for i in range(5):
+        get_image()
 
 def idle_action():
     stop_robot()
-
 
 def green_action(p_vector):
     if p_vector is None:
@@ -133,7 +134,6 @@ def green_action(p_vector):
         rotate_right(10)
     else:
         rotate_left(10)
-
 
 def blue_action(p_vector):
     if p_vector is None:
