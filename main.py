@@ -2,20 +2,21 @@ from lib.movement import *
 from lib.camera import *
 import numpy as np
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # constants
-MIN_COLOR_THRESHOLD = 10000
-MAX_IDLE_TIME = 30  # in seconds
-
-# WIDTH and HEIGHT imported from lib.camera 
-
-CENTER_X = WIDTH // 2
-GREEN_CENTER_TOLERANCE = 40
+ROTATE_180_TIME = timedelta(seconds=1.3)  # in seconds
+ROTATE_360_TIME = 2.665  # in seconds
+MIN_COLOR_THRESHOLD = 5000
+MAX_IDLE_TIME = timedelta(seconds=20)  # in seconds
+GREEN_ACTION_TOLERANCE = 80  # in pixels
+BLUE_ACTION_TOLERANCE = 50  # in pixels
 
 def round_robin():
     start_time = datetime.now()
     last_action_time = start_time
+
+    red_rotation_start_time = None
 
     while True:
         if timer_check(last_action_time):
@@ -26,18 +27,22 @@ def round_robin():
         color_counts = color_counter(img)
         max_color, avg_pos = color_locator(img, color_counts)
 
-        if max_color != None:
+        if max_color != None or red_rotation_start_time != None:
             last_action_time = datetime.now()
 
-        if max_color == "green":
+        if red_rotation_start_time != None:
+            red_rotation_start_time = red_action(red_rotation_start_time)
+        elif max_color == "green":
             green_action(avg_pos)
             discard_frames()
         elif max_color == "blue":
             blue_action(avg_pos)
             discard_frames()
         elif max_color == "red":
-            red_action()
-            discard_frames()
+            if red_rotation_start_time is None:
+                red_rotation_start_time = datetime.now()
+
+            red_rotation_start_time = red_action(red_rotation_start_time)
         else:
             idle_action()
 
@@ -46,16 +51,15 @@ def round_robin():
 
 
 def startup_action():
-    rotate_left(80)
-    time.sleep(1.4)
+    rotate_right(40)
+    time.sleep(ROTATE_360_TIME)
     stop_robot()
 
 
 def timer_check(last_action_time):
-    current_time = datetime.now()
-    elapsed_time = current_time - last_action_time
-    if elapsed_time.total_seconds() > MAX_IDLE_TIME:
+    if datetime.now() - last_action_time > MAX_IDLE_TIME:
         return True
+
     return False
 
 
@@ -117,55 +121,44 @@ def idle_action():
     stop_robot()
 
 def green_action(p_vector):
-    """Rotate the robot body to center the green object in the image."""
-
     if p_vector is None:
         stop_robot()
         return
 
-    x = p_vector[0]
-    error = x - CENTER_X
+    center_x = WIDTH // 2
+    dx = p_vector[0] - center_x
 
-    if abs(error) <= GREEN_CENTER_TOLERANCE:
+    if abs(dx) <= GREEN_ACTION_TOLERANCE:
+        stop_robot()
+    elif dx > 0:
+        rotate_right(10)
+    else:
+        rotate_left(10)
+
+def blue_action(p_vector):
+    if p_vector is None:
         stop_robot()
         return
 
-    Kp = 0.5
-    turn_speed = int(abs(error) * Kp)
+    center_x = WIDTH // 2
+    dx = p_vector[0] - center_x
 
-    MIN_SPEED = 30
-    MAX_SPEED = 120
-    turn_speed = max(MIN_SPEED, min(MAX_SPEED, turn_speed))
-
-    if error < 0:
-        rotate_left(turn_speed)
+    if abs(dx) <= BLUE_ACTION_TOLERANCE:
+        stop_robot()
+    elif dx > 0:
+        move_right(20)
     else:
-        rotate_right(turn_speed)
+        move_left(20)
 
-def blue_action(p_vector):
-    x_offset = p_vector[0] - (WIDTH/2)
 
-    if abs(x_offset) < 20:
-        return
-
-    speed = abs(x_offset) * 0.5
-
-    print(speed)
-
-    if x_offset > 0:
-        move_right(speed)
-        time.sleep(0.25)
+def red_action(start_time):
+    if datetime.now() - start_time < ROTATE_180_TIME:
+        rotate_left(40)
+        return start_time
     else:
-        move_left(speed)
-        time.sleep(0.25)
-    stop_robot()
+        stop_robot()
+        return None
 
-
-
-def red_action():
-    rotate_right(50)
-    time.sleep(0.9)
-    stop_robot()
 
 def camera_test():
     while True:
