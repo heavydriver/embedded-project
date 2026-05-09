@@ -1,5 +1,13 @@
 # Embedded Systems Project - Group 06
 
+## Group Members
+
+- Dennis Keithely
+- Angela Lopez
+- Varun Mange
+- Lucas Noack
+- Aniketh Yatam
+
 Created a real-time system, using round-robing scheduling, for a robot to engage in certain behaviors when the camera senses an associated command color.
 
 ## What the Code Does
